@@ -1,0 +1,29 @@
+groups:
+  - name: server_alerts
+    rules:
+      - alert: TargetDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сервис {{ $labels.job }} недоступен"
+          description: "Экспортер {{ $labels.instance }} не отвечает больше 1 минуты."
+
+      - alert: HighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes{mountpoint=~"/|/rootfs",fstype!="tmpfs"} / node_filesystem_size_bytes{mountpoint=~"/|/rootfs",fstype!="tmpfs"})) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Заканчивается место на диске VPS"
+          description: "Диск заполнен более чем на 85% (текущее значение: {{ printf \"%.1f\" $value }}%)."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокая нагрузка на RAM"
+          description: "Оперативная память заполнена более чем на 85% (текущее значение: {{ printf \"%.1f\" $value }}%)."
