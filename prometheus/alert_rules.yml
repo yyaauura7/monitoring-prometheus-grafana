@@ -27,3 +27,12 @@ groups:
         annotations:
           summary: "Высокая нагрузка на RAM"
           description: "Оперативная память заполнена более чем на 85% (текущее значение: {{ printf \"%.1f\" $value }}%)."
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокая нагрузка на CPU ({{ $labels.instance }})"
+          description: "Загрузка процессора превышает 80% (текущее значение: {{ $value | printf \"%.1f\" }}%)."
